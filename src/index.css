@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "Noto Sans Myanmar", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-app-bg: var(--app-bg);
+  --color-app-text: var(--app-text);
+  --color-app-border: var(--app-border);
+  --color-app-card: var(--app-card);
+}
+
+:root {
+  --app-bg: #f8fafc; /* slate-50 */
+  --app-text: #0f172a; /* slate-900 */
+  --app-border: #e2e8f0; /* slate-200 */
+  --app-card: #ffffff;
+}
+
+.dark {
+  --app-bg: #020617; /* slate-950 */
+  --app-text: #e2e8f0; /* slate-200 */
+  --app-border: #1e293b; /* slate-800 */
+  --app-card: #0f172a; /* slate-900 */
+}
+
+@layer base {
+  html {
+    @apply bg-app-bg;
+  }
+  body {
+    @apply bg-app-bg text-app-text min-h-screen transition-colors duration-300;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-app-card/80 backdrop-blur-md border border-app-border;
+  }
+  
+  .step-active {
+    @apply border-l-4 border-blue-500 bg-blue-500/10;
+  }
+  
+  .lang-btn.active {
+    @apply text-blue-500 border-b-2 border-blue-500;
+  }
+}

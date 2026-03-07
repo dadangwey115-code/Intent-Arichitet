@@ -35,7 +35,7 @@ const content: Content = {
   contextDesc: { en: "What info does the AI need?", mm: "AI သိဖို့ ဘာတွေလိုအပ်မလဲ?" },
   intentDesc: { en: "What does success look like?", mm: "တကယ်လိုချင်တဲ့ ရလဒ်က ဘာလဲ?" },
   frameworkTitle: { en: "The 7 Components", mm: "အဓိက အစိတ်အပိုင်း ၇ ခု" },
-  mentorLink: { en: "AI Mastermind Mentor", mm: "AI Mastermind Mentor" },
+  mentorLink: { en: "Ai Guide", mm: "Ai Guide" },
   pivTitle: { en: "The PIV Loop", mm: "PIV Loop လုပ်ငန်းစဉ်" },
   pivPlan: { en: "Plan the Intent", mm: "ရည်ရွယ်ချက်ကို စီစဉ်ပါ" },
   pivImplement: { en: "Build the Solution", mm: "အကောင်အထည်ဖော်ပါ" },

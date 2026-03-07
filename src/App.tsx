@@ -444,7 +444,7 @@ export default function App() {
             </h1>
             <div className="flex items-center gap-3 sm:gap-4">
               <a 
-                href="https://english-level-test-learn.mindset-it.online/"
+                href="https://eng-ai.mindset-it.online/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all font-bold text-xs sm:text-sm cursor-pointer"

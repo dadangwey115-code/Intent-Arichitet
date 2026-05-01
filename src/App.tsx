@@ -5,19 +5,35 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ExternalLink, Info, X, Target, CheckCircle2, Activity, Compass, ShieldAlert, UserCheck, Octagon, Copy, Check, Sun, Moon, Bot, HelpCircle, Trophy, RefreshCw, ChevronRight, Languages } from 'lucide-react';
+import { ExternalLink, Info, Library, X, Target, CheckCircle2, Activity, Compass, ShieldAlert, UserCheck, Octagon, Copy, Check, Sun, Moon, Bot, HelpCircle, Trophy, RefreshCw, ChevronRight, Languages } from 'lucide-react';
+
+type ModalType = null | 'prompting' | 'context' | 'intent' | 'piv_plan' | 'piv_implement' | 'piv_validate' | 'quiz' | 'quiz_category';
 
 type Language = 'en' | 'mm';
 type Theme = 'light' | 'dark';
 
-interface Content {
+interface Translation {
   [key: string]: {
     en: string;
     mm: string;
   };
 }
 
-const content: Content = {
+interface QuizQuestion {
+  question: { en: string; mm: string };
+  options: { en: string; mm: string }[];
+  correct: number;
+  hint?: { en: string; mm: string };
+  explanation: { en: string; mm: string };
+}
+
+const content: Translation = {
+  // ... existing content ...
+  quizCategoryTitle: { en: "Choose Quiz Category", mm: "ဉာဏ်စမ်းအမျိုးအစား ရွေးချယ်ပါ" },
+  catIntent: { en: "Intent Engineering", mm: "Intent Engineering" },
+  catIDE: { en: "Google Antigravity IDE", mm: "Google Antigravity IDE" },
+  hint: { en: "Hint", mm: "အရိပ်အမြွက်" },
+  explanation: { en: "Explanation", mm: "ရှင်းလင်းချက်" },
   heroTitle1: { en: "Don't just prompt.", mm: "Prompt တစ်ခုတည်းနဲ့ မလုံလောက်ပါဘူး။" },
   heroTitle2: { en: "Engineer the Intent.", mm: "AI ရဲ့ ရည်ရွယ်ချက် (Intent) ကို ပုံဖော်ပါ။" },
   heroDesc: { 
@@ -54,6 +70,7 @@ const content: Content = {
   fullHandbook: { en: "Read Full Handbook", mm: "လက်စွဲအပြည့်အစုံဖတ်ရန်" },
   fullLecture: { en: "Read Full Lecture", mm: "သင်ခန်းစာအပြည့်အစုံဖတ်ရန်" },
   promptGuide: { en: "Prompt Guide AI", mm: "Prompt လမ်းညွှန် AI" },
+  promptLibrary: { en: "Prompt Library", mm: "Prompt Library" },
   copyTemplate: { en: "Copy Intent Template", mm: "Template ကို ကူးယူပါ" },
   copied: { en: "Copied!", mm: "ကူးယူပြီးပါပြီ!" },
   quizTitle: { en: "Intent Engineering Quiz", mm: "Intent Engineering ဉာဏ်စမ်း" },
@@ -271,7 +288,7 @@ const pivValidateItems = [
   }
 ];
 
-const quizQuestions = [
+const intentQuestions: QuizQuestion[] = [
   {
     question: { en: "Layer 1: Prompting is primarily about...", mm: "အဆင့် ၁ - Prompting က ဘာကို အဓိကထားတာလဲ?" },
     options: [
@@ -279,7 +296,8 @@ const quizQuestions = [
       { en: "What you know", mm: "သင်သိတဲ့အချက်အလက်" },
       { en: "The words you use", mm: "သင်သုံးတဲ့ စကားလုံးတွေ" }
     ],
-    correct: 2
+    correct: 2,
+    explanation: { en: "Prompting is the surface layer where you choose the specific words and phrasing.", mm: "Prompting ဆိုတာ စကားလုံးတွေနဲ့ အသုံးအနှုန်းတွေကို ရွေးချယ်တဲ့ အပေါ်ယံအဆင့် ဖြစ်ပါတယ်။" }
   },
   {
     question: { en: "Layer 2: Context is defined as...", mm: "အဆင့် ၂ - Context ဆိုတာ ဘာလဲ?" },
@@ -288,7 +306,8 @@ const quizQuestions = [
       { en: "The Final Goal", mm: "နောက်ဆုံးပန်းတိုင်" },
       { en: "The Specific Prompt", mm: "တိကျတဲ့ Prompt" }
     ],
-    correct: 0
+    correct: 0,
+    explanation: { en: "Context provides the background information and knowledge the AI needs to understand the situation.", mm: "Context ဆိုတာ AI က အခြေအနေကို နားလည်ဖို့ လိုအပ်တဲ့ နောက်ခံအချက်အလက်တွေ ဖြစ်ပါတယ်။" }
   },
   {
     question: { en: "Layer 3: Intent focuses on...", mm: "အဆင့် ၃ - Intent က ဘာကို အဓိကထားတာလဲ?" },
@@ -297,7 +316,8 @@ const quizQuestions = [
       { en: "The Goal/Success", mm: "ပန်းတိုင်နဲ့ အောင်မြင်မှု" },
       { en: "The AI Model", mm: "AI မော်ဒယ်" }
     ],
-    correct: 1
+    correct: 1,
+    explanation: { en: "Intent is about the ultimate goal and what success looks like for the task.", mm: "Intent ဆိုတာ အလုပ်တစ်ခုရဲ့ နောက်ဆုံးပန်းတိုင်နဲ့ အောင်မြင်တဲ့ရလဒ်က ဘာလဲဆိုတာ ဖြစ်ပါတယ်။" }
   },
   {
     question: { en: "Which Intent component defines the core problem?", mm: "Intent ရဲ့ ဘယ်အစိတ်အပိုင်းက အဓိကပြဿနာကို သတ်မှတ်တာလဲ?" },
@@ -306,7 +326,8 @@ const quizQuestions = [
       { en: "Objective", mm: "ပန်းတိုင် (Objective)" },
       { en: "Metrics", mm: "တိုင်းတာချက် (Metrics)" }
     ],
-    correct: 1
+    correct: 1,
+    explanation: { en: "The Objective component is where you define the 'Why' and the core problem.", mm: "Objective ဆိုတာ 'ဘာကြောင့်' လုပ်တာလဲနဲ့ အဓိကပြဿနာကို သတ်မှတ်တဲ့နေရာ ဖြစ်ပါတယ်။" }
   },
   {
     question: { en: "'A 3-column table' is an example of which component?", mm: "'ဇယားတစ်ခု' ဆိုတာ ဘယ်အစိတ်အပိုင်းရဲ့ ဥပမာလဲ?" },
@@ -315,7 +336,8 @@ const quizQuestions = [
       { en: "Outcomes", mm: "ရလဒ် (Outcomes)" },
       { en: "Context", mm: "Context" }
     ],
-    correct: 1
+    correct: 1,
+    explanation: { en: "Outcomes define the specific format and deliverables of the AI's response.", mm: "Outcomes ဆိုတာ AI ဆီက ထွက်လာမယ့် တိကျတဲ့ ပုံစံနဲ့ ရလဒ်တွေကို သတ်မှတ်တာ ဖြစ်ပါတယ်။" }
   },
   {
     question: { en: "'Do not use technical jargon' is an example of...", mm: "'နည်းပညာစကားလုံးတွေ မသုံးပါနဲ့' ဆိုတာ ဘာရဲ့ ဥပမာလဲ?" },
@@ -324,7 +346,8 @@ const quizQuestions = [
       { en: "Objective", mm: "ပန်းတိုင် (Objective)" },
       { en: "Metrics", mm: "တိုင်းတာချက် (Metrics)" }
     ],
-    correct: 0
+    correct: 0,
+    explanation: { en: "Constraints are the rules and 'no-go' zones that the AI must follow.", mm: "Constraints ဆိုတာ AI လိုက်နာရမယ့် စည်းကမ်းတွေနဲ့ ရှောင်ကြဉ်ရမယ့်အရာတွေ ဖြစ်ပါတယ်။" }
   },
   {
     question: { en: "What does the 'P' in PIV Loop stand for?", mm: "PIV Loop မှာ 'P' က ဘာကို ဆိုလိုတာလဲ?" },
@@ -333,7 +356,8 @@ const quizQuestions = [
       { en: "Plan", mm: "စီစဉ်ခြင်း (Plan)" },
       { en: "Process", mm: "လုပ်ငန်းစဉ် (Process)" }
     ],
-    correct: 1
+    correct: 1,
+    explanation: { en: "The PIV Loop starts with Planning the Intent before implementation.", mm: "PIV Loop ကို အကောင်အထည်မဖော်ခင် Intent ကို စီစဉ်ခြင်း (Plan) နဲ့ စတင်ပါတယ်။" }
   },
   {
     question: { en: "In the PIV loop, where do you score the quality?", mm: "PIV loop မှာ အရည်အသွေးကို ဘယ်မှာ စစ်ဆေးတာလဲ?" },
@@ -342,7 +366,8 @@ const quizQuestions = [
       { en: "Implement", mm: "အကောင်အထည်ဖော်ခြင်း (Implement)" },
       { en: "Validate", mm: "စစ်ဆေးခြင်း (Validate)" }
     ],
-    correct: 2
+    correct: 2,
+    explanation: { en: "Validation is the final step where you check the results against your metrics.", mm: "Validate ဆိုတာ ရလဒ်တွေကို သတ်မှတ်ထားတဲ့ တိုင်းတာချက်တွေနဲ့ တိုက်ဆိုင်စစ်ဆေးတဲ့ နောက်ဆုံးအဆင့် ဖြစ်ပါတယ်။" }
   },
   {
     question: { en: "Which layer focuses on 'What does success look like?'", mm: "ဘယ်အဆင့်က 'အောင်မြင်တဲ့ရလဒ်က ဘယ်လိုလဲ' ဆိုတာကို အဓိကထားတာလဲ?" },
@@ -351,7 +376,8 @@ const quizQuestions = [
       { en: "Layer 2", mm: "အဆင့် ၂" },
       { en: "Layer 3", mm: "အဆင့် ၃" }
     ],
-    correct: 2
+    correct: 2,
+    explanation: { en: "Layer 3 (Intent) is entirely focused on the goal and success criteria.", mm: "အဆင့် ၃ (Intent) က ပန်းတိုင်နဲ့ အောင်မြင်မှု စံနှုန်းတွေကိုပဲ အဓိကထားတာ ဖြစ်ပါတယ်။" }
   },
   {
     question: { en: "If the AI output is too long, which component should you adjust?", mm: "AI ရဲ့ အဖြေက အရမ်းရှည်နေရင် ဘယ်အစိတ်အပိုင်းကို ပြင်သင့်လဲ?" },
@@ -360,21 +386,151 @@ const quizQuestions = [
       { en: "Constraints", mm: "ကန့်သတ်ချက် (Constraints)" },
       { en: "Metrics", mm: "တိုင်းတာချက် (Metrics)" }
     ],
-    correct: 1
+    correct: 1,
+    explanation: { en: "Constraints like word counts or length limits help control the size of the output.", mm: "စာလုံးအရေအတွက် ကန့်သတ်ချက်တွေက ထွက်လာမယ့် ရလဒ်ရဲ့ အရွယ်အစားကို ထိန်းချုပ်ပေးပါတယ်။" }
   }
 ];
+
+const ideQuestions: QuizQuestion[] = [
+  {
+    question: { en: "Which three main tools make up the core 'vibe coding' toolkit recommended?", mm: "Vibe coding အတွက် အဓိက အကြံပြုထားတဲ့ tool ၃ ခုက ဘာတွေလဲ?" },
+    options: [
+      { en: "VS Code, ChatGPT, and React", mm: "VS Code, ChatGPT, and React" },
+      { en: "Anti-gravity, Gemini 3.1 Pro, and Claude Code", mm: "Anti-gravity, Gemini 3.1 Pro, and Claude Code" },
+      { en: "Cursor, Copilot, and Python", mm: "Cursor, Copilot, and Python" },
+      { en: "Supabase, Stripe, and Apify", mm: "Supabase, Stripe, and Apify" }
+    ],
+    correct: 1,
+    hint: { en: "One is an IDE, and two are advanced LLMs.", mm: "တစ်ခုက IDE ဖြစ်ပြီး ကျန်နှစ်ခုကတော့ အဆင့်မြင့် LLM တွေ ဖြစ်ပါတယ်။" },
+    explanation: { en: "The core toolkit consists of anti-gravity, Gemini 3.1 Pro, and Claude Code.", mm: "အဓိက tool တွေကတော့ anti-gravity, Gemini 3.1 Pro နဲ့ Claude Code တို့ ဖြစ်ပါတယ်။" }
+  },
+  {
+    question: { en: "What is the primary difference between 'Planning' and 'Fast' conversation modes?", mm: "'Planning' နဲ့ 'Fast' mode တွေရဲ့ အဓိက ကွာခြားချက်က ဘာလဲ?" },
+    options: [
+      { en: "Planning is for databases, Fast is for frontend.", mm: "Planning က database အတွက်၊ Fast က frontend အတွက်။" },
+      { en: "Planning uses Claude, Fast uses Gemini.", mm: "Planning က Claude သုံးပြီး Fast က Gemini သုံးတယ်။" },
+      { en: "Planning proposes a workflow before executing, while Fast executes directly.", mm: "Planning က အရင်စဉ်းစားပြီးမှ လုပ်တယ်၊ Fast ကတော့ တိုက်ရိုက်လုပ်ဆောင်တယ်။" },
+      { en: "Planning is free, Fast costs credits.", mm: "Planning က အလကား၊ Fast ကတော့ ပိုက်ဆံပေးရတယ်။" }
+    ],
+    correct: 2,
+    hint: { en: "One mode asks for your approval before writing files.", mm: "Mode တစ်ခုက ဖိုင်တွေမရေးခင် သင့်ဆီက ခွင့်ပြုချက် အရင်တောင်းပါတယ်။" },
+    explanation: { en: "Planning mode forces the model to think and propose a workflow before manipulating files.", mm: "Planning mode က ဖိုင်တွေကို မပြင်ခင် အရင်စဉ်းစားပြီး လုပ်ငန်းစဉ်ကို အရင်တင်ပြပါတယ်။" }
+  },
+  {
+    question: { en: "What is the most critical security feature to enable on a Supabase database?", mm: "Supabase database မှာ အရေးကြီးဆုံး လုံခြုံရေး feature က ဘာလဲ?" },
+    options: [
+      { en: "Server-side validation", mm: "Server-side validation" },
+      { en: "Row Level Security (RLS)", mm: "Row Level Security (RLS)" },
+      { en: "Database obfuscation", mm: "Database obfuscation" },
+      { en: "NoSQL formatting", mm: "NoSQL formatting" }
+    ],
+    correct: 1,
+    hint: { en: "It ensures users can only access their own data rows.", mm: "ဒါက သုံးစွဲသူတွေအနေနဲ့ သူတို့ရဲ့ ကိုယ်ပိုင် data တွေကိုပဲ ကြည့်နိုင်အောင် လုပ်ပေးပါတယ်။" },
+    explanation: { en: "Row Level Security (RLS) ensures users can only access their own data rows.", mm: "RLS က သုံးစွဲသူတွေ သူတို့နဲ့ဆိုင်တဲ့ data တွေကိုပဲ ကိုင်တွယ်နိုင်အောင် ကာကွယ်ပေးပါတယ်။" }
+  },
+  {
+    question: { en: "Why is server-side validation preferred over client-side validation?", mm: "ဘာကြောင့် server-side validation က ပိုကောင်းတာလဲ?" },
+    options: [
+      { en: "Frontend code can be easily manipulated by attackers.", mm: "Frontend code ကို တိုက်ခိုက်သူတွေက အလွယ်တကူ ပြင်နိုင်လို့။" },
+      { en: "Server-side validation uses less CPU.", mm: "Server-side က CPU ပိုသက်သာလို့။" },
+      { en: "Client-side validation requires Stripe integration.", mm: "Client-side က Stripe လိုအပ်လို့။" },
+      { en: "Frontend validation breaks the Next.js routing.", mm: "Frontend validation က Next.js routing ကို ပျက်စီးစေလို့။" }
+    ],
+    correct: 0,
+    hint: { en: "Think about what an attacker can do using 'Inspect Element'.", mm: "'Inspect Element' သုံးပြီး ဘာတွေလုပ်လို့ရမလဲ စဉ်းစားကြည့်ပါ။" },
+    explanation: { en: "Frontend code can be easily bypassed or manipulated by attackers.", mm: "Frontend code ကို တိုက်ခိုက်သူတွေက အလွယ်တကူ ကျော်ဖြတ်နိုင် ဒါမှမဟုတ် ပြင်ဆင်နိုင်ပါတယ်။" }
+  },
+  {
+    question: { en: "Where is the correct place to store sensitive API keys in a vibe-coded app?", mm: "API key တွေကို ဘယ်မှာ သိမ်းဆည်းသင့်လဲ?" },
+    options: [
+      { en: "Hardcoded in the React components", mm: "React component တွေထဲမှာ တိုက်ရိုက်ရေးပြီး။" },
+      { en: "In the Supabase public schema", mm: "Supabase public schema ထဲမှာ။" },
+      { en: "In a .env file", mm: ".env ဖိုင်ထဲမှာ။" },
+      { en: "In the GitHub README", mm: "GitHub README ထဲမှာ။" }
+    ],
+    correct: 2,
+    hint: { en: "It is a specific configuration file for environment variables.", mm: "ဒါက ပတ်ဝန်းကျင်ဆိုင်ရာ ကိန်းရှင်တွေအတွက် သီးသန့်ဖိုင် ဖြစ်ပါတယ်။" },
+    explanation: { en: "API keys must be kept inside an environment file like .env to prevent exposure.", mm: "API key တွေကို လုံခြုံဖို့အတွက် .env လိုမျိုး ဖိုင်တွေထဲမှာပဲ သိမ်းဆည်းရပါမယ်။" }
+  },
+  {
+    question: { en: "What is the main structural difference between SQL and NoSQL databases?", mm: "SQL နဲ့ NoSQL ရဲ့ အဓိက ကွာခြားချက်က ဘာလဲ?" },
+    options: [
+      { en: "SQL uses flexible documents, NoSQL uses fixed tables.", mm: "SQL က document သုံးပြီး NoSQL က table သုံးတယ်။" },
+      { en: "SQL is for frontend, NoSQL is for backend.", mm: "SQL က frontend အတွက်၊ NoSQL က backend အတွက်။" },
+      { en: "SQL does not use primary keys, NoSQL does.", mm: "SQL က primary key မသုံးဘူး၊ NoSQL က သုံးတယ်။" },
+      { en: "SQL fixes column headers, while NoSQL allows flexible structures.", mm: "SQL က တိုင်ခေါင်းစဉ်တွေ သတ်မှတ်ထားပြီး NoSQL ကတော့ ပိုပြီး လွတ်လပ်တယ်။" }
+    ],
+    correct: 3,
+    hint: { en: "One behaves like a strict spreadsheet, while the other is like a folder of documents.", mm: "တစ်ခုက စည်းကမ်းကြီးတဲ့ spreadsheet လိုမျိုးဖြစ်ပြီး နောက်တစ်ခုကတော့ document တွေစုထားတဲ့ folder လိုမျိုးပါ။" },
+    explanation: { en: "SQL uses fixed column headers, whereas NoSQL allows every record to have its own structure.", mm: "SQL က တိုင်ခေါင်းစဉ်တွေ သတ်မှတ်ထားရပေမယ့် NoSQL ကတော့ record တစ်ခုချင်းစီကို စိတ်ကြိုက် ပုံစံသွင်းနိုင်ပါတယ်။" }
+  },
+  {
+    question: { en: "Which frontend framework is heavily recommended to standardize development?", mm: "ဖွံ့ဖြိုးတိုးတက်မှုအတွက် ဘယ် framework ကို အဓိက အကြံပြုထားလဲ?" },
+    options: [
+      { en: "Angular", mm: "Angular" },
+      { en: "Vue", mm: "Vue" },
+      { en: "Svelte", mm: "Svelte" },
+      { en: "Next.js", mm: "Next.js" }
+    ],
+    correct: 3,
+    hint: { en: "It is a popular React framework for full-stack apps.", mm: "ဒါက full-stack app တွေအတွက် နာမည်ကြီးတဲ့ React framework တစ်ခုပါ။" },
+    explanation: { en: "Next.js is recommended for its opinionated structure which works well with AI.", mm: "Next.js ရဲ့ စနစ်တကျရှိတဲ့ ပုံစံက AI နဲ့ အလုပ်လုပ်တဲ့အခါ ပိုပြီး ထိရောက်စေပါတယ်။" }
+  },
+  {
+    question: { en: "Which service is commonly used to host and deploy frontend web applications?", mm: "Web app တွေကို host လုပ်ဖို့ ဘယ် service ကို သုံးလေ့ရှိလဲ?" },
+    options: [
+      { en: "AWS", mm: "AWS" },
+      { en: "HostGator", mm: "HostGator" },
+      { en: "Netlify", mm: "Netlify" },
+      { en: "Bluehost", mm: "Bluehost" }
+    ],
+    correct: 2,
+    hint: { en: "You can deploy apps manually by dragging and dropping a project folder.", mm: "Project folder ကို ဆွဲထည့်ရုံနဲ့ app တွေကို deploy လုပ်နိုင်ပါတယ်။" },
+    explanation: { en: "Netlify is used to host applications on a web-accessible URL for free.", mm: "Netlify က app တွေကို အလကား host လုပ်ပေးပြီး အင်တာနက်ကနေ ကြည့်နိုင်အောင် လုပ်ပေးပါတယ်။" }
+  },
+  {
+    question: { en: "What is the recommended strategy for high-quality UX/UI designs using AI?", mm: "AI သုံးပြီး ကောင်းမွန်တဲ့ UX/UI ရဖို့ ဘယ်လိုလုပ်သင့်လဲ?" },
+    options: [
+      { en: "Telling the AI to randomly guess padding.", mm: "AI ကို စိတ်ကြိုက် ခန့်မှန်းခိုင်းခြင်း။" },
+      { en: "Buying a WordPress template and copying code.", mm: "WordPress template ဝယ်ပြီး ကူးယူခြင်း။" },
+      { en: "Writing raw CSS without references.", mm: "ဘာမှမကြည့်ဘဲ CSS ရေးခြင်း။" },
+      { en: "Taking a screenshot of an inspiration design and asking AI to replicate it.", mm: "လှပတဲ့ design ကို screenshot ရိုက်ပြီး AI ကို အတုယူခိုင်းခြင်း။" }
+    ],
+    correct: 3,
+    hint: { en: "Don't reinvent the wheel; rely on professional aesthetic foundations.", mm: "အသစ်ကနေ ပြန်မစပါနဲ့၊ ကျွမ်းကျင်တဲ့ design တွေကို အခြေခံပါ။" },
+    explanation: { en: "Using inspiration screenshots helps AI replicate high-end aesthetics.", mm: "လှပတဲ့ design တွေကို ပြပေးခြင်းက AI ကို ပိုမိုကောင်းမွန်တဲ့ ရလဒ်တွေ ထွက်လာအောင် ကူညီပေးပါတယ်။" }
+  },
+  {
+    question: { en: "What is the specific purpose of authentication middleware?", mm: "Authentication middleware ရဲ့ ရည်ရွယ်ချက်က ဘာလဲ?" },
+    options: [
+      { en: "To process Stripe payments.", mm: "Stripe payment တွေ လုပ်ဆောင်ဖို့။" },
+      { en: "To validate database schema migrations.", mm: "Database schema တွေကို စစ်ဆေးဖို့။" },
+      { en: "To animate UI elements.", mm: "UI တွေကို လှုပ်ရှားအောင် လုပ်ဖို့။" },
+      { en: "To secure routes by redirecting unauthenticated users.", mm: "Login မဝင်ထားတဲ့သူတွေကို တားဆီးဖို့။" }
+    ],
+    correct: 3,
+    hint: { en: "It acts as a 'bouncer' for your app's internal pages.", mm: "ဒါက app ရဲ့ အတွင်းစာမျက်နှာတွေအတွက် 'လုံခြုံရေး' လိုမျိုး လုပ်ဆောင်ပေးပါတယ်။" },
+    explanation: { en: "Authentication middleware ensures users cannot access protected routes without being logged in.", mm: "Authentication middleware က login မဝင်ထားဘဲနဲ့ အရေးကြီးတဲ့ စာမျက်နှာတွေကို မကြည့်နိုင်အောင် ကာကွယ်ပေးပါတယ်။" }
+  }
+];
+
+const quizQuestions = intentQuestions; // Default for type safety if needed
 
 export default function App() {
   const [lang, setLang] = useState<Language>('mm');
   const [theme, setTheme] = useState<Theme>('light');
   const [activeStep, setActiveStep] = useState(1);
-  const [modalType, setModalType] = useState<null | 'prompting' | 'context' | 'intent' | 'piv_plan' | 'piv_implement' | 'piv_validate' | 'quiz'>(null);
+  const [modalType, setModalType] = useState<ModalType>(null);
+  const [quizType, setQuizType] = useState<'intent' | 'ide'>('intent');
   const [copied, setCopied] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
+  const [showHint, setShowHint] = useState(false);
+
+  const currentQuestions = quizType === 'intent' ? intentQuestions : ideQuestions;
 
   const t = (key: string) => content[key]?.[lang] || key;
 
@@ -396,12 +552,18 @@ export default function App() {
 
   const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
 
-  const startQuiz = () => {
+  const openQuizCategory = () => {
+    setModalType('quiz_category');
+  };
+
+  const startQuiz = (type: 'intent' | 'ide') => {
+    setQuizType(type);
     setCurrentQuestion(0);
     setScore(0);
     setShowResult(false);
     setSelectedOption(null);
     setIsAnswered(false);
+    setShowHint(false);
     setModalType('quiz');
   };
 
@@ -409,16 +571,17 @@ export default function App() {
     if (isAnswered) return;
     setSelectedOption(index);
     setIsAnswered(true);
-    if (index === quizQuestions[currentQuestion].correct) {
+    if (index === currentQuestions[currentQuestion].correct) {
       setScore(prev => prev + 1);
     }
   };
 
   const nextQuestion = () => {
-    if (currentQuestion < quizQuestions.length - 1) {
+    if (currentQuestion < currentQuestions.length - 1) {
       setCurrentQuestion(prev => prev + 1);
       setSelectedOption(null);
       setIsAnswered(false);
+      setShowHint(false);
     } else {
       setShowResult(true);
     }
@@ -454,7 +617,7 @@ export default function App() {
                 <span className="hidden lg:inline">{t('englishLink')}</span>
               </a>
               <button 
-                onClick={startQuiz}
+                onClick={openQuizCategory}
                 className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white transition-all font-bold text-xs sm:text-sm cursor-pointer"
               >
                 <HelpCircle size={16} />
@@ -521,7 +684,7 @@ export default function App() {
             <motion.div 
               whileHover={{ scale: 1.02 }}
               onClick={() => setModalType('prompting')}
-              className="p-5 rounded-xl border border-app-border bg-app-card/50 hover:border-blue-500/50 cursor-pointer transition-all group"
+              className="p-5 rounded-xl border border-app-border bg-app-card hover:border-blue-500/50 cursor-pointer transition-all group"
             >
               <div className="text-[10px] font-bold text-slate-500 uppercase mb-1">{t('layer1')}</div>
               <h3 className="text-base font-semibold mb-1 flex items-center justify-between">
@@ -536,7 +699,7 @@ export default function App() {
             <motion.div 
               whileHover={{ scale: 1.02 }}
               onClick={() => setModalType('context')}
-              className="p-5 rounded-xl border border-app-border bg-app-card/30 hover:border-blue-500/50 cursor-pointer transition-all group"
+              className="p-5 rounded-xl border border-app-border bg-app-card hover:border-blue-500/50 cursor-pointer transition-all group"
             >
               <div className="text-[10px] font-bold text-slate-500 uppercase mb-1">{t('layer2')}</div>
               <h3 className="text-base font-semibold mb-1 flex items-center justify-between">
@@ -600,7 +763,7 @@ export default function App() {
                       </span>
                     </div>
                     <h2 className="text-2xl font-bold mb-4">
-                      {steps[activeStep - 1].title[lang].split('။ ')[1] || steps[activeStep - 1].title[lang].split('. ')[1]}
+                      {steps[activeStep - 1].title[lang].split('။ ')[1] || steps[activeStep - 1].title[lang].split('. ')[1] || steps[activeStep - 1].title[lang]}
                     </h2>
                     <p className="text-slate-500 leading-relaxed mb-6 text-base">
                       {steps[activeStep - 1].desc[lang]}
@@ -633,7 +796,7 @@ export default function App() {
           </section>
 
           {/* PIV Loop Summary */}
-          <section className="bg-app-card rounded-2xl p-8 border border-app-border">
+          <section className="bg-app-card rounded-2xl p-8 border border-app-border mb-16">
             <div className="flex items-center gap-2 mb-6 justify-center">
               <div className="h-px w-8 bg-app-border"></div>
               <h2 className="text-sm font-bold text-slate-500 uppercase tracking-[0.2em]">{t('pivTitle')}</h2>
@@ -675,31 +838,72 @@ export default function App() {
               </motion.div>
             </div>
           </section>
-        </main>
+          </main>
 
         {/* QUICK GUIDE MODALS */}
         <AnimatePresence>
           {modalType && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-              <motion.div 
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setModalType(null)}
-                className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
               />
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                className="glass-card w-full max-w-lg overflow-hidden rounded-2xl shadow-2xl relative z-10"
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="relative w-full max-w-2xl bg-app-bg border border-app-border rounded-3xl shadow-2xl overflow-hidden"
               >
-                {modalType === 'quiz' ? (
+                {modalType === 'quiz_category' ? (
+                  <div className="p-8">
+                    <div className="flex justify-between items-center mb-8">
+                      <h2 className="text-2xl font-bold flex items-center gap-3">
+                        <Trophy className="text-blue-500" />
+                        {t('quizTitle')}
+                      </h2>
+                      <button 
+                        onClick={() => setModalType(null)} 
+                        className="text-slate-400 hover:text-blue-500 transition-colors cursor-pointer"
+                      >
+                        <X size={24} />
+                      </button>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <motion.div 
+                        whileHover={{ scale: 1.02 }}
+                        onClick={() => startQuiz('intent')}
+                        className="p-6 rounded-2xl border border-app-border bg-app-card hover:border-blue-500 transition-all cursor-pointer group"
+                      >
+                        <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                          <Target size={24} />
+                        </div>
+                        <h3 className="font-bold mb-2">{t('catIntent')}</h3>
+                        <p className="text-xs text-slate-500">{t('catIntentDesc')}</p>
+                      </motion.div>
+                      
+                      <motion.div 
+                        whileHover={{ scale: 1.02 }}
+                        onClick={() => startQuiz('ide')}
+                        className="p-6 rounded-2xl border border-app-border bg-app-card hover:border-blue-500 transition-all cursor-pointer group"
+                      >
+                        <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                          <Bot size={24} />
+                        </div>
+                        <h3 className="font-bold mb-2">{t('catIDE')}</h3>
+                        <p className="text-xs text-slate-500">{t('catIDEDesc')}</p>
+                      </motion.div>
+                    </div>
+                  </div>
+                ) : modalType === 'quiz' ? (
                   <div className="flex flex-col h-full">
                     <div className="p-6 border-b border-app-border flex justify-between items-center bg-app-card/50">
                       <h2 className="text-lg font-bold flex items-center gap-2">
                         <HelpCircle size={20} className="text-blue-500" />
-                        {showResult ? t('quizResult') : `${t('quizTitle')} (${currentQuestion + 1}/${quizQuestions.length})`}
+                        {showResult ? t('quizResult') : `${quizType === 'intent' ? t('catIntent') : t('catIDE')} (${currentQuestion + 1}/${currentQuestions.length})`}
                       </h2>
                       <button 
                         onClick={() => setModalType(null)} 
@@ -713,11 +917,11 @@ export default function App() {
                       {!showResult ? (
                         <div className="space-y-6">
                           <h3 className="text-xl font-bold leading-tight">
-                            {quizQuestions[currentQuestion].question[lang]}
+                            {currentQuestions[currentQuestion].question[lang]}
                           </h3>
                           <div className="space-y-3">
-                            {quizQuestions[currentQuestion].options.map((option, idx) => {
-                              const isCorrect = idx === quizQuestions[currentQuestion].correct;
+                            {currentQuestions[currentQuestion].options.map((option, idx) => {
+                              const isCorrect = idx === currentQuestions[currentQuestion].correct;
                               const isSelected = idx === selectedOption;
                               
                               let buttonClass = "w-full p-4 rounded-xl border text-left transition-all flex items-center justify-between group ";
@@ -748,24 +952,57 @@ export default function App() {
                             })}
                           </div>
                           
+                          <div className="flex gap-2">
+                            {currentQuestions[currentQuestion].hint && !isAnswered && (
+                              <button 
+                                onClick={() => setShowHint(!showHint)}
+                                className="text-xs font-bold text-blue-500 hover:text-blue-600 transition-colors flex items-center gap-1 cursor-pointer"
+                              >
+                                <Info size={14} />
+                                {t('hint')}
+                              </button>
+                            )}
+                          </div>
+
+                          {showHint && !isAnswered && currentQuestions[currentQuestion].hint && (
+                            <motion.div 
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              className="p-3 bg-blue-500/5 border border-blue-500/20 rounded-lg text-xs text-blue-600 italic"
+                            >
+                              {currentQuestions[currentQuestion].hint[lang]}
+                            </motion.div>
+                          )}
+
                           {isAnswered && (
                             <motion.div 
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
-                              className={`p-4 rounded-xl flex items-center gap-3 ${
-                                selectedOption === quizQuestions[currentQuestion].correct 
+                              className="space-y-3"
+                            >
+                              <div className={`p-4 rounded-xl flex items-center gap-3 ${
+                                selectedOption === currentQuestions[currentQuestion].correct 
                                 ? 'bg-emerald-500/10 text-emerald-600' 
                                 : 'bg-rose-500/10 text-rose-600'
-                              }`}
-                            >
-                              {selectedOption === quizQuestions[currentQuestion].correct ? (
-                                <CheckCircle2 size={20} />
-                              ) : (
-                                <ShieldAlert size={20} />
+                              }`}>
+                                {selectedOption === currentQuestions[currentQuestion].correct ? (
+                                  <CheckCircle2 size={20} />
+                                ) : (
+                                  <ShieldAlert size={20} />
+                                )}
+                                <span className="font-bold">
+                                  {selectedOption === currentQuestions[currentQuestion].correct ? t('quizCorrect') : t('quizWrong')}
+                                </span>
+                              </div>
+                              
+                              {currentQuestions[currentQuestion].explanation && (
+                                <div className="p-4 bg-app-card border border-app-border rounded-xl">
+                                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t('explanation')}</div>
+                                  <p className="text-sm text-slate-500 leading-relaxed">
+                                    {currentQuestions[currentQuestion].explanation[lang]}
+                                  </p>
+                                </div>
                               )}
-                              <span className="font-bold">
-                                {selectedOption === quizQuestions[currentQuestion].correct ? t('quizCorrect') : t('quizWrong')}
-                              </span>
                             </motion.div>
                           )}
                         </div>
@@ -777,15 +1014,15 @@ export default function App() {
                           <div>
                             <h3 className="text-2xl font-bold mb-2">{t('quizScore')}</h3>
                             <div className="text-5xl font-black text-blue-500">
-                              {score} <span className="text-2xl text-slate-400">/ {quizQuestions.length}</span>
+                              {score} <span className="text-2xl text-slate-400">/ {currentQuestions.length}</span>
                             </div>
                           </div>
                           <p className="text-slate-500 max-w-xs mx-auto">
-                            {score === quizQuestions.length 
-                              ? "Perfect! You are an Intent Architect!" 
-                              : score >= 7 
+                            {score === currentQuestions.length 
+                              ? "Perfect! You are a Master Architect!" 
+                              : score >= currentQuestions.length * 0.7 
                               ? "Great job! You have a solid understanding." 
-                              : "Good effort! Review the layers to improve."}
+                              : "Good effort! Review the materials to improve."}
                           </p>
                         </div>
                       )}
@@ -798,108 +1035,130 @@ export default function App() {
                           onClick={nextQuestion}
                           className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${
                             isAnswered 
-                            ? 'bg-blue-600 hover:bg-blue-500 text-white cursor-pointer' 
-                            : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                              ? 'bg-blue-600 hover:bg-blue-500 text-white cursor-pointer' 
+                              : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                           }`}
                         >
-                          {currentQuestion === quizQuestions.length - 1 ? t('quizFinish') : t('quizNext')}
+                          {currentQuestion === currentQuestions.length - 1 ? t('quizFinish') : t('quizNext')}
                           <ChevronRight size={20} />
                         </button>
                       ) : (
-                        <button
-                          onClick={startQuiz}
-                          className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
-                        >
-                          <RefreshCw size={20} />
-                          {t('quizRestart')}
-                        </button>
+                        <div className="flex gap-3">
+                          <button
+                            onClick={() => setModalType('quiz_category')}
+                            className="flex-1 py-4 bg-app-card hover:bg-app-bg text-app-text border border-app-border rounded-xl font-bold transition-all cursor-pointer"
+                          >
+                            Change Category
+                          </button>
+                          <button
+                            onClick={() => startQuiz(quizType)}
+                            className="flex-1 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
+                          >
+                            <RefreshCw size={20} />
+                            {t('quizRestart')}
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
                 ) : (
                   <>
                     <div className="p-6 border-b border-app-border flex justify-between items-center bg-app-card/50">
-                  <h2 className="text-lg font-bold">
-                    {modalType === 'prompting' ? t('handbookTitle') : 
-                     modalType === 'context' ? t('contextTitle') : 
-                     modalType === 'intent' ? t('intentTitle') :
-                     modalType === 'piv_plan' ? t('pivPlanTitle') :
-                     modalType === 'piv_implement' ? t('pivImplementTitle') :
-                     t('pivValidateTitle')}
-                  </h2>
-                  <div className="flex items-center gap-2">
-                    {modalType === 'prompting' && (
-                      <a 
-                        href="https://gemini.google.com/gem/1360JWmfTEycWjPbMO-lSfRAMVdui3Sec?usp=sharing"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2 rounded-full bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white transition-all cursor-pointer flex items-center gap-2 group relative"
-                        title={t('promptGuide')}
-                      >
-                        <Bot size={20} />
-                        <span className="absolute right-full mr-2 px-2 py-1 bg-slate-900 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                          {t('promptGuide')}
-                        </span>
-                      </a>
-                    )}
-                    <button 
-                      onClick={() => setModalType(null)} 
-                      className="text-slate-500 hover:text-blue-500 transition-colors cursor-pointer"
-                    >
-                      <X size={20} />
-                    </button>
-                  </div>
-                </div>
-                
-                <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
-                  {(modalType === 'prompting' ? handbookItems : 
-                    modalType === 'context' ? contextHandbookItems : 
-                    modalType === 'intent' ? intentHandbookItems :
-                    modalType === 'piv_plan' ? pivPlanItems :
-                    modalType === 'piv_implement' ? pivImplementItems :
-                    pivValidateItems).map((item, idx) => (
-                    <div key={idx} className="flex gap-4 p-3 rounded-lg hover:bg-blue-500/5 transition-colors">
-                      <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 font-bold text-xs shrink-0">
-                        {idx + 1}
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-sm mb-1">{item.title[lang]}</h4>
-                        <p className="text-xs text-slate-500 leading-relaxed">{item.desc[lang]}</p>
+                      <h2 className="text-lg font-bold">
+                        {modalType === 'prompting' ? t('handbookTitle') : 
+                         modalType === 'context' ? t('contextTitle') : 
+                         modalType === 'intent' ? t('intentTitle') :
+                         modalType === 'piv_plan' ? t('pivPlanTitle') :
+                         modalType === 'piv_implement' ? t('pivImplementTitle') :
+                         t('pivValidateTitle')}
+                      </h2>
+                      <div className="flex items-center gap-2">
+                        {modalType === 'prompting' && (
+                          <div className="flex items-center gap-2">
+                            <a 
+                              href="https://promptadvance.club/gemini-prompts"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-2 rounded-full bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white transition-all cursor-pointer flex items-center gap-2 group relative"
+                              title={t('promptLibrary')}
+                            >
+                              <Library size={20} />
+                              <span className="absolute right-full mr-2 px-2 py-1 bg-slate-900 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                                {t('promptLibrary')}
+                              </span>
+                            </a>
+                            <a 
+                              href="https://gemini.google.com/gem/1360JWmfTEycWjPbMO-lSfRAMVdui3Sec?usp=sharing"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-2 rounded-full bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white transition-all cursor-pointer flex items-center gap-2 group relative"
+                              title={t('promptGuide')}
+                            >
+                              <Bot size={20} />
+                              <span className="absolute right-full mr-2 px-2 py-1 bg-slate-900 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                                {t('promptGuide')}
+                              </span>
+                            </a>
+                          </div>
+                        )}
+                        <button 
+                          onClick={() => setModalType(null)} 
+                          className="text-slate-500 hover:text-blue-500 transition-colors cursor-pointer"
+                        >
+                          <X size={20} />
+                        </button>
                       </div>
                     </div>
-                  ))}
-                </div>
+                    
+                    <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+                      {(modalType === 'prompting' ? handbookItems : 
+                        modalType === 'context' ? contextHandbookItems : 
+                        modalType === 'intent' ? intentHandbookItems :
+                        modalType === 'piv_plan' ? pivPlanItems :
+                        modalType === 'piv_implement' ? pivImplementItems :
+                        pivValidateItems).map((item, idx) => (
+                        <div key={idx} className="flex gap-4 p-3 rounded-lg hover:bg-blue-500/5 transition-colors">
+                          <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 font-bold text-xs shrink-0">
+                            {idx + 1}
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-sm mb-1">{item.title[lang]}</h4>
+                            <p className="text-xs text-slate-500 leading-relaxed">{item.desc[lang]}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
 
-                <div className="p-6 bg-app-card/50 border-t border-app-border space-y-3">
-                  {!modalType.startsWith('piv') && (
-                    <a 
-                      href={modalType === 'prompting' 
-                        ? "https://docs.google.com/document/d/172lYHV02T667PAZRTyUZHHOQAZ6LPaKu7qqvigUUAp0/edit?usp=sharing"
-                        : modalType === 'context'
-                        ? "https://docs.google.com/document/d/1d6ou051XLnZIYL-2Z6HB5Z7gVJ1CFLpPSKgW8JtN1hw/edit?usp=sharing"
-                        : "https://docs.google.com/document/d/177AqsKT5zDdiBVCjluSmBpatwnym_OhJvkHc-FIa228/edit?usp=sharing"
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full py-2.5 bg-app-card hover:bg-app-bg text-blue-500 text-sm font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-2 border border-app-border"
-                    >
-                      <ExternalLink size={16} />
-                      {modalType === 'prompting' ? t('fullHandbook') : t('fullLecture')}
-                    </a>
-                  )}
-                  <button 
-                    onClick={() => setModalType(null)} 
-                    className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-lg transition-all cursor-pointer"
-                  >
-                    {t('closeGuide')}
-                  </button>
-                </div>
-              </>
-            )}
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+                    <div className="p-6 bg-app-card/50 border-t border-app-border space-y-3">
+                      {!modalType.startsWith('piv') && (
+                        <a 
+                          href={modalType === 'prompting' 
+                            ? "https://docs.google.com/document/d/172lYHV02T667PAZRTyUZHHOQAZ6LPaKu7qqvigUUAp0/edit?usp=sharing"
+                            : modalType === 'context'
+                            ? "https://docs.google.com/document/d/1d6ou051XLnZIYL-2Z6HB5Z7gVJ1CFLpPSKgW8JtN1hw/edit?usp=sharing"
+                            : "https://docs.google.com/document/d/177AqsKT5zDdiBVCjluSmBpatwnym_OhJvkHc-FIa228/edit?usp=sharing"
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full py-2.5 bg-app-card hover:bg-app-bg text-blue-500 text-sm font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-2 border border-app-border"
+                        >
+                          <ExternalLink size={16} />
+                          {modalType === 'prompting' ? t('fullHandbook') : t('fullLecture')}
+                        </a>
+                      )}
+                      <button 
+                        onClick={() => setModalType(null)} 
+                        className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-lg transition-all cursor-pointer"
+                      >
+                        {t('closeGuide')}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
         <footer className="py-10 text-center">
           <p className="text-slate-500 text-[11px] uppercase tracking-widest">

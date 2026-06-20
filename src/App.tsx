@@ -5,7 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ExternalLink, Info, Library, X, Target, CheckCircle2, Activity, Compass, ShieldAlert, UserCheck, Octagon, Copy, Check, Sun, Moon, Bot, HelpCircle, Trophy, RefreshCw, ChevronRight, Languages } from 'lucide-react';
+import { ExternalLink, Info, Library, X, Target, CheckCircle2, Activity, Compass, ShieldAlert, UserCheck, Octagon, Copy, Check, Sun, Moon, Bot, HelpCircle, Trophy, RefreshCw, ChevronRight, Languages, BookOpen } from 'lucide-react';
 
 type ModalType = null | 'prompting' | 'context' | 'intent' | 'piv_plan' | 'piv_implement' | 'piv_validate' | 'quiz' | 'quiz_category';
 
@@ -82,7 +82,9 @@ const content: Translation = {
   quizCorrect: { en: "Correct!", mm: "မှန်ကန်ပါတယ်!" },
   quizWrong: { en: "Wrong Answer", mm: "မှားယွင်းနေပါတယ်" },
   quizResult: { en: "Quiz Result", mm: "ဉာဏ်စမ်းရလဒ်" },
-  englishLink: { en: "Learn English Skills", mm: "အင်္ဂလိပ်စာ လေ့လာရန်" }
+  englishLink: { en: "AI English Skills", mm: "AI အင်္ဂလိပ်စာ" },
+  examReminder: { en: "Are you a newcomer? Please take the AI Mindset Basic Exam to build your foundation before reading the Intent Architect framework.", mm: "AI သင်တန်းသားသစ် ဖြစ်ပါသလား? Intent Architect ကို မလေ့လာမီ အခြေခံကောင်းများရရှိရန် AI Mindset အခြေခံဉာဏ်စမ်း (Exam) ကို အရင်ဖြေဆိုပေးပါရန် သတိပေးနှိုးဆော်အပ်ပါသည်။" },
+  examButton: { en: "Take AI Mindset Exam", mm: "AI Mindset အခြေခံဉာဏ်စမ်း ဖြေဆိုရန်" }
 };
 
 const steps = [
@@ -610,10 +612,10 @@ export default function App() {
                 href="https://eng-ai.mindset-it.online/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all font-bold text-xs sm:text-sm cursor-pointer"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-violet-500/10 text-violet-600 hover:bg-violet-600 hover:text-white transition-all font-bold text-xs sm:text-sm cursor-pointer"
                 title={t('englishLink')}
               >
-                <Languages size={16} />
+                <BookOpen size={16} />
                 <span className="hidden lg:inline">{t('englishLink')}</span>
               </a>
               <button 
@@ -659,6 +661,38 @@ export default function App() {
         </header>
 
         <main className="max-w-4xl mx-auto px-6 py-10">
+          {/* Exam Reminder Banner */}
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="mb-8 p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-transparent border border-blue-500/20 shadow-lg shadow-blue-500/5 flex flex-col md:flex-row items-center justify-between gap-5 relative overflow-hidden group"
+          >
+            <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/5 rounded-full blur-3xl -z-10 group-hover:bg-blue-500/10 transition-colors duration-500" />
+            <div className="flex items-start gap-4 text-left">
+              <div className="p-3 rounded-xl bg-blue-500/10 text-blue-500 shrink-0 mt-0.5 animate-pulse">
+                <ShieldAlert size={22} className="stroke-[2.5]" />
+              </div>
+              <div>
+                <span className="text-[10px] font-black tracking-widest uppercase text-blue-500 mb-1 block">
+                  {lang === 'en' ? "FOUNDATION FIRST" : "အခြေခံအဆင့် အရင်ဆုံးလေ့လာရန်"}
+                </span>
+                <p className="text-sm text-app-text leading-relaxed font-semibold">
+                  {t('examReminder')}
+                </p>
+              </div>
+            </div>
+            <a 
+              href="https://quiz.komoe.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full md:w-auto px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm tracking-wide shadow-lg shadow-blue-500/25 transition-all text-center shrink-0 flex items-center justify-center gap-2 group-hover:scale-[1.02] cursor-pointer"
+            >
+              <span>{t('examButton')}</span>
+              <ExternalLink size={16} />
+            </a>
+          </motion.div>
+
           {/* Hero Section */}
           <section className="mb-12 text-center">
             <motion.h2 
@@ -1133,9 +1167,9 @@ export default function App() {
                       {!modalType.startsWith('piv') && (
                         <a 
                           href={modalType === 'prompting' 
-                            ? "https://docs.google.com/document/d/172lYHV02T667PAZRTyUZHHOQAZ6LPaKu7qqvigUUAp0/edit?usp=sharing"
+                            ? "https://prompt.komoe.org/"
                             : modalType === 'context'
-                            ? "https://docs.google.com/document/d/1d6ou051XLnZIYL-2Z6HB5Z7gVJ1CFLpPSKgW8JtN1hw/edit?usp=sharing"
+                            ? "https://context.komoe.org/"
                             : "https://docs.google.com/document/d/177AqsKT5zDdiBVCjluSmBpatwnym_OhJvkHc-FIa228/edit?usp=sharing"
                           }
                           target="_blank"

@@ -609,7 +609,7 @@ export default function App() {
             </h1>
             <div className="flex items-center gap-3 sm:gap-4">
               <a 
-                href="https://eng-ai.mindset-it.online/"
+                href="https://english.komoe.org/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-violet-500/10 text-violet-600 hover:bg-violet-600 hover:text-white transition-all font-bold text-xs sm:text-sm cursor-pointer"

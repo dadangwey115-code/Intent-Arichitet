@@ -5,7 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ExternalLink, Info, Library, X, Target, CheckCircle2, Activity, Compass, ShieldAlert, UserCheck, Octagon, Copy, Check, Sun, Moon, Bot, HelpCircle, Trophy, RefreshCw, ChevronRight, Languages, BookOpen, Sparkles } from 'lucide-react';
+import { ExternalLink, Info, Library, X, Target, CheckCircle2, Activity, Compass, ShieldAlert, UserCheck, Octagon, Copy, Check, Sun, Moon, Bot, HelpCircle, Trophy, RefreshCw, ChevronRight, Languages, BookOpen, Sparkles, Gamepad2 } from 'lucide-react';
 
 type ModalType = null | 'prompting' | 'context' | 'intent' | 'piv_plan' | 'piv_implement' | 'piv_validate' | 'quiz' | 'quiz_category';
 
@@ -72,6 +72,7 @@ const content: Translation = {
   promptGuide: { en: "Prompt Guide AI", mm: "Prompt လမ်းညွှန် AI" },
   promptLibrary: { en: "Prompt Library", mm: "Prompt Library" },
   superDesignLibrary: { en: "SuperDesign Library", mm: "SuperDesign Prompt Library" },
+  promptGame: { en: "Learn Prompt with Game", mm: "Prompt ဂိမ်းကစားပြီး လေ့လာရန်" },
   copyTemplate: { en: "Copy Intent Template", mm: "Template ကို ကူးယူပါ" },
   copied: { en: "Copied!", mm: "ကူးယူပြီးပါပြီ!" },
   quizTitle: { en: "Intent Engineering Quiz", mm: "Intent Engineering ဉာဏ်စမ်း" },
@@ -1132,6 +1133,18 @@ export default function App() {
                               <Library size={20} />
                               <span className="absolute right-full mr-2 px-2 py-1 bg-slate-900 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
                                 {t('promptLibrary')}
+                              </span>
+                            </a>
+                            <a 
+                              href="https://prompts.chat/kids"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-2 rounded-full bg-pink-500/10 text-pink-500 hover:bg-pink-500 hover:text-white transition-all cursor-pointer flex items-center gap-2 group relative"
+                              title={t('promptGame')}
+                            >
+                              <Gamepad2 size={20} />
+                              <span className="absolute right-full mr-2 px-2 py-1 bg-slate-900 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+                                {t('promptGame')}
                               </span>
                             </a>
                             <a 

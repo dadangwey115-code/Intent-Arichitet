@@ -10,14 +10,14 @@
 }
 
 :root {
-  --app-bg: #f8fafc; /* slate-50 */
-  --app-text: #0f172a; /* slate-900 */
-  --app-border: #e2e8f0; /* slate-200 */
-  --app-card: #ffffff;
+  --app-bg: #eaf0f6; /* soft, gentle non-glare neutral */
+  --app-text: #1e293b; /* slate-800, comfortable high-contrast reading */
+  --app-border: #cbd5e1; /* slate-300 clean subtle divider */
+  --app-card: #f8fafc; /* soft matte card tone preventing retina fatigue */
 }
 
 .dark {
-  --app-bg: #020617; /* slate-950 */
+  --app-bg: #090d16; /* refined deep twilight dark */
   --app-text: #e2e8f0; /* slate-200 */
   --app-border: #1e293b; /* slate-800 */
   --app-card: #0f172a; /* slate-900 */

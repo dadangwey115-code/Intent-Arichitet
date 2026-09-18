@@ -85,8 +85,12 @@ const content: Translation = {
   quizWrong: { en: "Wrong Answer", mm: "မှားယွင်းနေပါတယ်" },
   quizResult: { en: "Quiz Result", mm: "ဉာဏ်စမ်းရလဒ်" },
   englishLink: { en: "AI English Skills", mm: "AI အင်္ဂလိပ်စာ" },
-  examReminder: { en: "Are you a newcomer? Please take the AI Mindset Basic Exam to build your foundation before reading the Intent Architect framework.", mm: "AI သင်တန်းသားသစ် ဖြစ်ပါသလား? Intent Architect ကို မလေ့လာမီ အခြေခံကောင်းများရရှိရန် AI Mindset အခြေခံဉာဏ်စမ်း (Exam) ကို အရင်ဖြေဆိုပေးပါရန် သတိပေးနှိုးဆော်အပ်ပါသည်။" },
-  examButton: { en: "Take AI Mindset Exam", mm: "AI Mindset အခြေခံဉာဏ်စမ်း ဖြေဆိုရန်" }
+  artOfAiLink: { en: "The Art of AI", mm: "The Art of AI" },
+  examReminder: { 
+    en: "New to AI? Take the AI Mindset Basic Exam before exploring Intent Architect.", 
+    mm: "Intent Architect မလေ့လာမီ AI Mindset အခြေခံဉာဏ်စမ်းကို အရင်ဖြေဆိုပါ။" 
+  },
+  examButton: { en: "Take Mindset Exam", mm: "AI Mindset ဉာဏ်စမ်း ဖြေဆိုရန်" }
 };
 
 const steps = [
@@ -522,7 +526,14 @@ const quizQuestions = intentQuestions; // Default for type safety if needed
 
 export default function App() {
   const [lang, setLang] = useState<Language>('mm');
-  const [theme, setTheme] = useState<Theme>('light');
+  const [theme, setTheme] = useState<Theme>(() => {
+    try {
+      const saved = localStorage.getItem('theme');
+      return (saved === 'light' || saved === 'dark') ? (saved as Theme) : 'dark';
+    } catch {
+      return 'dark';
+    }
+  });
   const [activeStep, setActiveStep] = useState(1);
   const [modalType, setModalType] = useState<ModalType>(null);
   const [quizType, setQuizType] = useState<'intent' | 'ide'>('intent');
@@ -551,6 +562,11 @@ export default function App() {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
+    }
+    try {
+      localStorage.setItem('theme', theme);
+    } catch {
+      // ignore
     }
   }, [theme]);
 
@@ -609,12 +625,22 @@ export default function App() {
             <h1 className="text-lg font-bold tracking-tight flex items-center gap-2">
               <span className="text-blue-500">◈</span> Intent Architect
             </h1>
-            <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <a 
+                href="https://the-art-of-ai.komoe.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-600 hover:text-white transition-all font-bold text-xs sm:text-sm cursor-pointer"
+                title={t('artOfAiLink')}
+              >
+                <Sparkles size={16} />
+                <span className="hidden lg:inline">{t('artOfAiLink')}</span>
+              </a>
               <a 
                 href="https://english.komoe.org/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-violet-500/10 text-violet-600 hover:bg-violet-600 hover:text-white transition-all font-bold text-xs sm:text-sm cursor-pointer"
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-full bg-violet-500/10 text-violet-600 dark:text-violet-400 hover:bg-violet-600 hover:text-white transition-all font-bold text-xs sm:text-sm cursor-pointer"
                 title={t('englishLink')}
               >
                 <BookOpen size={16} />
@@ -668,18 +694,18 @@ export default function App() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="mb-8 p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-transparent border border-blue-500/20 shadow-lg shadow-blue-500/5 flex flex-col md:flex-row items-center justify-between gap-5 relative overflow-hidden group"
+            className="mb-8 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-transparent border border-blue-500/20 shadow-md shadow-blue-500/5 flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden group"
           >
             <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/5 rounded-full blur-3xl -z-10 group-hover:bg-blue-500/10 transition-colors duration-500" />
-            <div className="flex items-start gap-4 text-left">
-              <div className="p-3 rounded-xl bg-blue-500/10 text-blue-500 shrink-0 mt-0.5 animate-pulse">
-                <ShieldAlert size={22} className="stroke-[2.5]" />
+            <div className="flex items-center gap-3 text-left w-full sm:w-auto">
+              <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-500 shrink-0">
+                <ShieldAlert size={20} className="stroke-[2.2]" />
               </div>
               <div>
-                <span className="text-[10px] font-black tracking-widest uppercase text-blue-500 mb-1 block">
-                  {lang === 'en' ? "FOUNDATION FIRST" : "အခြေခံအဆင့် အရင်ဆုံးလေ့လာရန်"}
+                <span className="text-[10px] font-black tracking-wider uppercase text-blue-500 mb-0.5 block">
+                  {lang === 'en' ? "RECOMMENDED FIRST" : "အရင်ဆုံး လေ့လာရန်"}
                 </span>
-                <p className="text-sm text-app-text leading-relaxed font-semibold">
+                <p className="text-sm text-app-text font-bold leading-snug">
                   {t('examReminder')}
                 </p>
               </div>
@@ -688,10 +714,10 @@ export default function App() {
               href="https://quiz.komoe.org/"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full md:w-auto px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm tracking-wide shadow-lg shadow-blue-500/25 transition-all text-center shrink-0 flex items-center justify-center gap-2 group-hover:scale-[1.02] cursor-pointer"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm tracking-wide shadow-md shadow-blue-500/25 transition-all text-center shrink-0 flex items-center justify-center gap-2 hover:scale-[1.02] cursor-pointer"
             >
               <span>{t('examButton')}</span>
-              <ExternalLink size={16} />
+              <ExternalLink size={15} />
             </a>
           </motion.div>
 
@@ -1220,7 +1246,41 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        <footer className="py-10 text-center">
+        <footer className="py-10 text-center flex flex-col items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 text-xs font-semibold text-slate-500">
+            <a 
+              href="https://the-art-of-ai.komoe.org/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 hover:text-amber-500 transition-colors"
+            >
+              <Sparkles size={14} className="text-amber-500" />
+              <span>The Art of AI</span>
+              <ExternalLink size={12} />
+            </a>
+            <span className="text-slate-600 dark:text-slate-700">•</span>
+            <a 
+              href="https://english.komoe.org/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 hover:text-violet-500 transition-colors"
+            >
+              <BookOpen size={14} className="text-violet-500" />
+              <span>{t('englishLink')}</span>
+              <ExternalLink size={12} />
+            </a>
+            <span className="text-slate-600 dark:text-slate-700">•</span>
+            <a 
+              href="https://quiz.komoe.org/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 hover:text-blue-500 transition-colors"
+            >
+              <ShieldAlert size={14} className="text-blue-500" />
+              <span>{t('examButton')}</span>
+              <ExternalLink size={12} />
+            </a>
+          </div>
           <p className="text-slate-500 text-[11px] uppercase tracking-widest">
             {t('footer')}
           </p>
